@@ -1,6 +1,6 @@
-#!/usr/bin/python3
+#!env python
 
-from pysqlcipher3 import dbapi2 as sqlite
+import sqlite3 as sqlite
 from argparse import ArgumentParser
 from getpass import getpass
 import sys
@@ -12,8 +12,6 @@ ap.add_argument("-d", "--database", dest="db_name",
                     help="Authenticator Plus database, usually authplus.db")
 ap.add_argument("-o", "--output-file", dest="out_file", default = "andOTP.json",
                     help="Output file name. Defaults to andOTP.json")
-ap.add_argument("-p", "--password", dest="password",
-                    help="Authenticator Plus master password (don't set if you wanna type password in a prompt instead)")
 
 args = ap.parse_args()
 
@@ -21,13 +19,8 @@ if args.db_name is None:
     ap.print_help()
     sys.exit(0)
 
-elif args.password is None:
-    args.password = getpass("Authenticator Plus master password: ")
-
 conn = sqlite.connect(args.db_name)
 cur = conn.cursor()
-cur.execute("PRAGMA cipher_compatibility = 3")
-cur.execute(f"PRAGMA key = '{args.password}'")
 cur.execute("SELECT * FROM accounts ORDER BY position ASC")
 account_rows = cur.fetchall()
 
